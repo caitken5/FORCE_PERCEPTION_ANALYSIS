@@ -11,10 +11,10 @@ import header as h
 
 
 # Set constants for saving information.
-data_source_folder = "C:/Users/carol/OneDrive/Desktop/FP_Analysis"  # source folder for data files for each trial, specifically answers.
-demo_source_file = "C:/Users/carol/OneDrive/Desktop/FP_Analysis/FP_Demographics.xls"  # source folder for demographic data file.
-results_folder = ""  # Folder for saving the Excel file containing results to be used for statistical analysis.
-graph_folder = ""  # Folder for saving graphs of results for each Answers file.
+data_source_folder = "D:/FP_Analysis/Data"  # source folder for data files for each trial, specifically answers.
+demo_source_file = "D:/FP_Analysis/Data/FP_Demographics.xls"  # source folder for demographic data file.
+results_folder = "D:/FP_Analysis/Results"  # Folder for saving the Excel file containing results to be used for statistical analysis.
+graph_folder = "D:/FP_Analysis/Graphs"  # Folder for saving graphs of results for each Answers file.
 workbook_name = 'FORCE_PERCEPTION_ANALYSIS.xlsx'
 
 testing_plots = True
@@ -33,8 +33,8 @@ if __name__ == '__main__':
             print(file)
             data_demo = h.get_data_demo(file)
             print(data_demo)
-            data = np.loadtxt(file, comments='#', delimiter=',', unpack=False)
-            # TODO: Determine why the above line does not recognize that the file exists.
+            file_path = data_source_folder + "/" + file
+            data = np.loadtxt(file_path, comments='#', delimiter=',', unpack=False)
             # Extract relevant data.
             forces = data[:, h.data_header.index("Left_Force"):h.data_header.index("Right_Force") + 1]
             my_len = forces.shape[0]
@@ -64,7 +64,9 @@ if __name__ == '__main__':
             absolute_threshold = 10 ** log_threshold
             Weber_fraction = absolute_threshold / h.ref_force
             data_demo.append(Weber_fraction)  # Append the calculated value.
-            data_to_print.append(data_demo)  # Append this line of data to
+            data_to_print.append(data_demo)  # Append this line of data to data_to_print array so that all of this
+            # collected information can be concatenated with the data from the demographics file and saved together
+            # for analysis.
 
     # TODO: Identify what data I want to print to the file for analysis.
     # TODO: In the column for hand used, change convention to 0 and 1 instead of right and left.
