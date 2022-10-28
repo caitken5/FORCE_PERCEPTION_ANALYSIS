@@ -7,7 +7,9 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 import header as h
+import gc
 
+matplotlib.use('Agg')
 
 # Set constants for saving information.
 data_source_folder = "D:/FP_Analysis/Data"  # source folder for data files for each trial, specifically answers.
@@ -66,6 +68,27 @@ if __name__ == '__main__':
             data_to_print.append(data_demo)  # Append this line of data to data_to_print array so that all of this
             # collected information can be concatenated with the data from the demographics file and saved together
             # for analysis.
+            # Final thing is to print the graphs to the graphs folder.
+            fig = plt.figure(num=1, dpi=100, facecolor='w', edgecolor='w')
+            fig.set_size_inches(15, 8)
+            ax = fig.add_subplot(111)
+            # Create a new variable called condensed_reversal, that saves the index of where a reversal occurs.
+            condensed_reversal = np.nonzero(reversal)[0]
+            ax.axvline(x=condensed_reversal[0], label="Reversal Point", color='r')
+            for i in range(1, len(condensed_reversal)):
+                ax.axvline(x=condensed_reversal[i], color='r')
+            ax.plot(higher_force, label="Comparative Force", marker='o')
+            ax.set_xlabel("Trial Number")
+            ax.set_ylabel("Force (N)")
+            ax.set_title(data_demo[0] + " Force vs. Trial Responses")
+            ax.grid()
+            ax.legend()
+            file_list = file.split('_')
+            save_str = graph_folder + '/' + '_'.join(file_list[0:5])
+            plt.savefig(fname=save_str)
+            fig.clf()
+            plt.close()
+            gc.collect()
 
     # Convert data_to_print to a dataframe.
     data_frame = pd.DataFrame(np.asarray(data_to_print), columns=h.data_name_header)
