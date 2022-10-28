@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-import xlsxwriter
 import header as h
 
 
@@ -21,10 +20,11 @@ testing_plots = True
 saving_plots = True
 
 if __name__ == '__main__':
+    # Initialize labels to be used for the analysis.
     workbook_path = results_folder + '/' + workbook_name
-    workbook = xlsxwriter.Workbook(workbook_path)
+    sheet_name = 'FP_ANALYSIS'
     # Load in the demographic data as pandas.
-    demo = pd.read_excel(demo_source_file)
+    demo_frame = pd.read_excel(demo_source_file)
     # Create an empty list to which to append all relevant data to analysis.
     data_to_print = []
     # All files will be saved as text files. Need to make sure no other text files get saved there.
@@ -32,7 +32,6 @@ if __name__ == '__main__':
         if file.endswith('.txt'):
             print(file)
             data_demo = h.get_data_demo(file)
-            print(data_demo)
             file_path = data_source_folder + "/" + file
             data = np.loadtxt(file_path, comments='#', delimiter=',', unpack=False)
             # Extract relevant data.
@@ -58,18 +57,21 @@ if __name__ == '__main__':
             # Get the average of these values and compute the Weber fraction.
             if relevant_reversal_vals.shape[0] < h.num_reversals - h.num_remove:
                 log_threshold = relevant_reversal_vals[-1]
-                print("Exited early. Minimum threshold applied.")
+                print("Exited early. Minimum threshold obtained.")
             else:
                 log_threshold = np.mean(relevant_reversal_vals)
             absolute_threshold = 10 ** log_threshold
-            Weber_fraction = absolute_threshold / h.ref_force
+            Weber_fraction = np.round(absolute_threshold / h.ref_force, 4)
             data_demo.append(Weber_fraction)  # Append the calculated value.
             data_to_print.append(data_demo)  # Append this line of data to data_to_print array so that all of this
             # collected information can be concatenated with the data from the demographics file and saved together
             # for analysis.
 
-    # TODO: Identify what data I want to print to the file for analysis.
-    # TODO: In the column for hand used, change convention to 0 and 1 instead of right and left.
-    #  Also change cohort and med state.
-
-    print(data_to_print)
+    # Convert data_to_print to a dataframe.
+    data_frame = pd.DataFrame(np.asarray(data_to_print), columns=h.data_name_header)
+    combo_frame = pd.merge(data_frame, demo_frame, how='left', on='ID_STRING')
+    combo_frame = combo_frame.drop(columns=['COHORT_x', 'ID_x'])
+    combo_frame = combo_frame.rename(columns={'COHORT_y': 'COHORT', 'ID_y': 'ID'})
+    # Save this information to a new Excel file.
+    combo_frame.to_excel(workbook_path, sheet_name=sheet_name)
+    print("Exiting the program.")
