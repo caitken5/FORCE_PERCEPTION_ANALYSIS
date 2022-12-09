@@ -18,7 +18,7 @@ results_folder = "D:/FP_Analysis/Results"  # Folder for saving the Excel file co
 graph_folder = "D:/FP_Analysis/Graphs"  # Folder for saving graphs of results for each Answers file.
 workbook_name = 'FORCE_PERCEPTION_ANALYSIS.xlsx'
 
-testing_plots = True
+making_plots = False
 saving_plots = True
 
 if __name__ == '__main__':
@@ -56,7 +56,7 @@ if __name__ == '__main__':
             force_diff = h.get_force_diff(higher_force)
             staircase_dir = h.get_staircase_dir(force_diff)
             # Debugging section for FP_C_07_NA_L_Answers...
-            if "FP_C_07_NA_L_Answers-2022-11-07-12-06-27.txt" in file:
+            if "FP_C_17" in file:
                 print("Stopping for check...")
             reversal = h.get_reversal(staircase_dir)
 
@@ -85,28 +85,29 @@ if __name__ == '__main__':
             # collected information can be concatenated with the data from the demographics file and saved together
             # for analysis.
             # Final thing is to print the graphs to the graphs folder.
-            fig = plt.figure(num=1, dpi=100, facecolor='w', edgecolor='w')
-            fig.set_size_inches(15, 8)
-            ax = fig.add_subplot(111)
-            # Create a new variable called condensed_reversal, that saves the index of where a reversal occurs.
-            condensed_reversal = np.nonzero(reversal)[0]
-            if condensed_reversal.shape[0] != 0:
-                ax.axvline(x=condensed_reversal[0], label="Reversal Point", color='r')
-                for i in range(1, len(condensed_reversal)):
-                    ax.axvline(x=condensed_reversal[i], color='r')
-            ax.plot(higher_force, label="Comparative Force", marker='o')
-            ax.set_xlabel("Trial Number")
-            ax.set_ylabel("Force (N)")
-            my_title = data_demo[0] + "_MED-" + str(data_demo[3]) + "_SIDE-" + str(data_demo[4])
-            ax.set_title(my_title + " Force vs. Trial Responses")
-            ax.grid()
-            ax.legend(loc='lower left')
-            file_list = file.split('_')
-            save_str = graph_folder + '/' + '_'.join(file_list[0:5])
-            plt.savefig(fname=save_str)
-            fig.clf()
-            plt.close()
-            gc.collect()
+            if making_plots:
+                fig = plt.figure(num=1, dpi=100, facecolor='w', edgecolor='w')
+                fig.set_size_inches(15, 8)
+                ax = fig.add_subplot(111)
+                # Create a new variable called condensed_reversal, that saves the index of where a reversal occurs.
+                condensed_reversal = np.nonzero(reversal)[0]
+                if condensed_reversal.shape[0] != 0:
+                    ax.axvline(x=condensed_reversal[0], label="Reversal Point", color='r')
+                    for i in range(1, len(condensed_reversal)):
+                        ax.axvline(x=condensed_reversal[i], color='r')
+                ax.plot(higher_force, label="Comparative Force", marker='o')
+                ax.set_xlabel("Trial Number")
+                ax.set_ylabel("Force (N)")
+                my_title = data_demo[0] + "_MED-" + str(data_demo[3]) + "_SIDE-" + str(data_demo[4])
+                ax.set_title(my_title + " Force vs. Trial Responses")
+                ax.grid()
+                ax.legend(loc='lower left')
+                file_list = file.split('_')
+                save_str = graph_folder + '/' + '_'.join(file_list[0:5])
+                plt.savefig(fname=save_str)
+                fig.clf()
+                plt.close()
+                gc.collect()
 
     # Convert data_to_print to a dataframe.
     data_frame = pd.DataFrame(np.asarray(data_to_print), columns=h.data_name_header)
