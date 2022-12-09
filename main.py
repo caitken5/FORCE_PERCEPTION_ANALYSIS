@@ -27,7 +27,16 @@ if __name__ == '__main__':
     sheet_name = 'FP_ANALYSIS'
     # Load in the demographic data as pandas.
     demo_frame = pd.read_excel(demo_source_file)
+    dob_array = demo_frame[['DOB_YEAR', 'DOB_MONTH', 'DOB_DAY']].copy().to_numpy()
+    dov_array = demo_frame[['VISIT_YEAR', 'VISIT_MONTH', 'VISIT_DAY']].copy().to_numpy()
+    ages = []
+    for i in range(dob_array.shape[0]):
+        dob = dob_array[i]
+        dov = dov_array[i]
+        age = h.get_age_at_assessment(dob, dov)
+        ages.append(age)
     # Create an empty list to which to append all relevant data to analysis.
+    demo_frame['AGE'] = ages
     data_to_print = []
     # All files will be saved as text files. Need to make sure no other text files get saved there.
     for file in os.listdir(data_source_folder):
@@ -88,9 +97,10 @@ if __name__ == '__main__':
             ax.plot(higher_force, label="Comparative Force", marker='o')
             ax.set_xlabel("Trial Number")
             ax.set_ylabel("Force (N)")
-            ax.set_title(data_demo[0] + " Force vs. Trial Responses")
+            my_title = data_demo[0] + "_MED-" + str(data_demo[3]) + "_SIDE-" + str(data_demo[4])
+            ax.set_title(my_title + " Force vs. Trial Responses")
             ax.grid()
-            ax.legend()
+            ax.legend(loc='lower left')
             file_list = file.split('_')
             save_str = graph_folder + '/' + '_'.join(file_list[0:5])
             plt.savefig(fname=save_str)
@@ -103,6 +113,9 @@ if __name__ == '__main__':
     combo_frame = pd.merge(data_frame, demo_frame, how='left', on='ID_STRING')
     combo_frame = combo_frame.drop(columns=['COHORT_x', 'ID_x'])
     combo_frame = combo_frame.rename(columns={'COHORT_y': 'COHORT', 'ID_y': 'ID'})
+    combo_frame.loc[combo_frame['MED_STATE'] == '0', ['DYSKINESIA', 'DYS_INTERFERE']] = '0'
+    combo_frame = combo_frame.fillna(0)
+    combo_frame = combo_frame.astype({'DYSKINESIA': 'int', 'DYS_INTERFERE': 'int'})
     # Save this information to a new Excel file.
     combo_frame.to_excel(workbook_path, sheet_name=sheet_name)
     print("Exiting the program.")
