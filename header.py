@@ -38,9 +38,11 @@ data_header = ["Time", "Left_Force", "Right_Force", "Left_Answer", "Right_Answer
 # # (MDS-UPDRS) for Part III Motor Assessment only, when in the medicated state. This means that the patient took 1.5
 # to 2 times their dose.
 # SIDE_OF_ONSET: The estimated side, according to patient history of symptom onset, on which symptoms first began.
+# DYSKINESIA: If dyskinesias were present in the on-state or not.
+# DYS_INTERFERE: If the dyskinesias interfere with the UPDRS assessment.
 demo_header = ["ID_STRING", "COHORT", "ID", "DOB_YEAR", "DOB_MONTH", "DOB_DAY", "VISIT_YEAR", "VISIT_MONTH",
                "VISIT_DAY", "DOM_HAND", "SEX", "NEURO_ISSUES", "DIAGNOSIS_YEAR", "YEARS_ON_DRT", "MOCA_SCORE_ON",
-               "UPDRS_OFF", "UPDRS_ON", "SIDE_OF_ONSET"]
+               "UPDRS_OFF", "UPDRS_ON", "SIDE_OF_ONSET", "DYSKINESIA", "DYS_INTERFERE"]
 
 # --data_name_header--
 # ID_STRING: First two letters contain the name of the study. Next letter contains the group to which the person
@@ -103,8 +105,10 @@ def get_force_diff(higher_force):
 
 def get_reversal(staircase_dir):
     reversal = np.diff(staircase_dir)
-    end_val = -1 * reversal[np.nonzero(reversal)[0][-1]]
-    reversal = np.hstack([reversal, end_val])
+    reversal_nums = np.nonzero(reversal)
+    if reversal_nums[0].size != 0:
+        end_val = -1 * reversal[np.nonzero(reversal)[0][-1]]
+        reversal = np.hstack([reversal, end_val])
     return reversal / 2
 
 

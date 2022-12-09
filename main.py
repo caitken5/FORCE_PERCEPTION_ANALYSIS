@@ -46,6 +46,9 @@ if __name__ == '__main__':
             # Compute the differences along the series to begin the look for reversals in direction.
             force_diff = h.get_force_diff(higher_force)
             staircase_dir = h.get_staircase_dir(force_diff)
+            # Debugging section for FP_C_07_NA_L_Answers...
+            if "FP_C_07_NA_L_Answers-2022-11-07-12-06-27.txt" in file:
+                print("Stopping for check...")
             reversal = h.get_reversal(staircase_dir)
 
             # Compute the logarithmic differences between the two presented force stimuli.
@@ -58,8 +61,12 @@ if __name__ == '__main__':
 
             # Get the average of these values and compute the Weber fraction.
             if relevant_reversal_vals.shape[0] < h.num_reversals - h.num_remove:
-                log_threshold = relevant_reversal_vals[-1]
+                log_threshold = log10_delta[-1]
                 print("Exited early. Minimum threshold obtained.")
+                # Here, we take the last value of log_threshold rather than relevant to account for case where no
+                # reversals occur.
+                # TODO: Determine if I should slightly change how this is achieved because someone can do better than
+                #  this and still technically have not beaten it before? Look at graphs to figure out.
             else:
                 log_threshold = np.mean(relevant_reversal_vals)
             absolute_threshold = 10 ** log_threshold
@@ -74,9 +81,10 @@ if __name__ == '__main__':
             ax = fig.add_subplot(111)
             # Create a new variable called condensed_reversal, that saves the index of where a reversal occurs.
             condensed_reversal = np.nonzero(reversal)[0]
-            ax.axvline(x=condensed_reversal[0], label="Reversal Point", color='r')
-            for i in range(1, len(condensed_reversal)):
-                ax.axvline(x=condensed_reversal[i], color='r')
+            if condensed_reversal.shape[0] != 0:
+                ax.axvline(x=condensed_reversal[0], label="Reversal Point", color='r')
+                for i in range(1, len(condensed_reversal)):
+                    ax.axvline(x=condensed_reversal[i], color='r')
             ax.plot(higher_force, label="Comparative Force", marker='o')
             ax.set_xlabel("Trial Number")
             ax.set_ylabel("Force (N)")
