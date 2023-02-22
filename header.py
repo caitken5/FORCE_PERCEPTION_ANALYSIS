@@ -54,6 +54,10 @@ demo_header = ["ID_STRING", "COHORT", "ID", "DOB_YEAR", "DOB_MONTH", "DOB_DAY", 
 # HAND: 0: Left, 1: Right.
 data_name_header = ["ID_STRING", "COHORT", "ID", "MED_STATE", "HAND", "WEBER_FRACTION"]
 
+# -- exclusion_list--
+# Contains a list of all person names that should be excluded due to not being eligible even after testing.
+exclusion_list = ['FP_C_17']
+
 ref_force = 4.5
 left = data_header.index("Left_Force")
 right = data_header.index("Right_Force")

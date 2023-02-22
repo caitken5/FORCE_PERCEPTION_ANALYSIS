@@ -18,8 +18,18 @@ results_folder = "D:/FP_Analysis/Results"  # Folder for saving the Excel file co
 graph_folder = "D:/FP_Analysis/Graphs"  # Folder for saving graphs of results for each Answers file.
 workbook_name = 'FORCE_PERCEPTION_ANALYSIS.xlsx'
 
-making_plots = False
+making_plots = True
 saving_plots = True
+
+# Create some variables for controlling the font size.
+SMALLER_SIZE = 18
+SMALL_SIZE = 24
+
+# Change the sizes for specific features of plots accordingly.
+plt.rc('axes', labelsize=SMALL_SIZE)
+plt.rc('legend', fontsize=SMALL_SIZE)
+plt.rc('xtick', labelsize=SMALL_SIZE)
+plt.rc('ytick', labelsize=SMALL_SIZE)
 
 if __name__ == '__main__':
     # Initialize labels to be used for the analysis.
@@ -74,8 +84,6 @@ if __name__ == '__main__':
                 print("Exited early. Minimum threshold obtained.")
                 # Here, we take the last value of log_threshold rather than relevant to account for case where no
                 # reversals occur.
-                # TODO: Determine if I should slightly change how this is achieved because someone can do better than
-                #  this and still technically have not beaten it before? Look at graphs to figure out.
             else:
                 log_threshold = np.mean(relevant_reversal_vals)
             absolute_threshold = 10 ** log_threshold
@@ -95,13 +103,14 @@ if __name__ == '__main__':
                     ax.axvline(x=condensed_reversal[0], label="Reversal Point", color='r')
                     for i in range(1, len(condensed_reversal)):
                         ax.axvline(x=condensed_reversal[i], color='r')
+                ax.axhline(y=h.ref_force + absolute_threshold, label="Weber Fraction", color='k', linestyle='--')
                 ax.plot(higher_force, label="Comparative Force", marker='o')
                 ax.set_xlabel("Trial Number")
                 ax.set_ylabel("Force (N)")
                 my_title = data_demo[0] + "_MED-" + str(data_demo[3]) + "_SIDE-" + str(data_demo[4])
-                ax.set_title(my_title + " Force vs. Trial Responses")
+                ax.set_title("Force vs. Trial Responses", fontsize=SMALL_SIZE)
                 ax.grid()
-                ax.legend(loc='lower left')
+                ax.legend(loc='upper right')
                 file_list = file.split('_')
                 save_str = graph_folder + '/' + '_'.join(file_list[0:5])
                 plt.savefig(fname=save_str)
@@ -117,6 +126,8 @@ if __name__ == '__main__':
     combo_frame.loc[combo_frame['MED_STATE'] == '0', ['DYSKINESIA', 'DYS_INTERFERE']] = '0'
     combo_frame = combo_frame.fillna(0)
     combo_frame = combo_frame.astype({'DYSKINESIA': 'int', 'DYS_INTERFERE': 'int'})
+    for i, e in enumerate(h.exclusion_list):
+        combo_frame.drop(combo_frame[combo_frame['ID_STRING'] == e].index, inplace=True)
     # Save this information to a new Excel file.
     combo_frame.to_excel(workbook_path, sheet_name=sheet_name)
     print("Exiting the program.")
